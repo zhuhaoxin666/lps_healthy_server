@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mysoft.lps_healthy_server.dao.mapper.ReportRecordMapper">
+
+
+    <insert id="insertReportRecord" parameterType="com.mysoft.lps_healthy_server.domain.mydo.DoReportRecord">
+
+        insert into report_record(treatment_date, report_url, treatment_record, foreign_patient_id, foreign_doctor_id,
+                                  report_hos_name,report_depart_name)
+        VALUES (#{reportRecord.treatmentDate}, #{reportRecord.reportUrl}, #{reportRecord.treatmentRecord},
+                #{reportRecord.patientId}, #{reportRecord.doctorId},#{reportRecord.hosName},#{reportRecord.departName})
+    </insert>
+
+<!--    根据病人id查询病人所有的就诊记录-->
+    <select id="selectAllReportRecordByPatId" resultMap="reportRecordMap">
+        select *
+        from (report_record left join patient on foreign_patient_id = patient.pat_id)
+                 left join doctor
+                           on foreign_doctor_id = doctor.doc_id
+        where pat_id = #{patientId}
+    </select>
+
+
+    <resultMap id="reportRecordMap" type="com.mysoft.lps_healthy_server.domain.entity.ReportRecord">
+        <id property="reportId" column="report_id"/>
+        <result property="treatmentDate" column="treatment_date"/>
+        <result property="reportUrl" column="report_url"/>
+        <result property="treatmentRecord" column="treatment_record"/>
+        <result property="hosName" column="report_hos_name"/>
+        <result property="departName" column="report_depart_name"/>
+        <association property="patient" column="foreign_patient_id"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Patient">
+            <id property="patId" column="pat_id"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="username" column="username"/>
+            <result property="idCard" column="id_card"/>
+            <result property="phone" column="phone"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+        </association>
+        <association property="doctor" column="foreign_doctor_id"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Doctor">
+            <id property="docId" column="doc_id"/>
+            <result property="docName" column="doc_name"/>
+            <result property="docLevel" column="doc_level"/>
+            <result property="price" column="price"/>
+        </association>
+    </resultMap>
+
+</mapper>

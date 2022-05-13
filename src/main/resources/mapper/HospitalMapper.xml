@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mysoft.lps_healthy_server.dao.mapper.HospitalMapper">
+
+
+    <!--    插入一个医院信息-->
+    <insert id="insertHospital" parameterType="com.mysoft.lps_healthy_server.domain.entity.Hospital">
+        insert into hospital(hos_name, hos_level, hos_nature, hos_category, hos_address, hos_introduce, hos_img_url,hos_telephone)
+        values (#{hosName}, #{hosLevel}, #{hosNature}, #{hosCategory}, #{hosAddress}, #{hosIntroduce}, #{hosImgUrl},#{hosTelephone})
+    </insert>
+
+    <!--    修改一个医院信息-->
+    <update id="updateHospitalByHosId" parameterType="com.mysoft.lps_healthy_server.domain.entity.Hospital">
+
+        update hospital
+        set hos_level     = #{hosLevel},
+            hos_nature    = #{hosNature},
+            hos_category  = #{hosCategory},
+            hos_address   = #{hosAddress},
+            hos_introduce = #{hosIntroduce},
+            hos_img_url   = #{hosImgUrl},
+            hos_telephone = #{hosTelephone}
+        where
+        hos_id = #{hosId}
+    </update>
+
+
+
+    <!--    根据医院名字查询医院id-->
+    <select id="selectHosIdByName" resultType="long">
+        select hos_id
+        from hospital
+        where hos_name = #{hosName}
+    </select>
+
+    <!--    根据医院名字查询医院信息-->
+    <select id="selectHosInfoByHosName" parameterType="string" resultMap="hospitalResultMap">
+
+        select *
+        from hospital
+        where hos_name = #{hosName}
+
+    </select>
+
+
+    <!--    根据医院名字查询医院信息-->
+    <select id="selectHospitalByHosId" resultType="com.mysoft.lps_healthy_server.domain.entity.Hospital"
+            parameterType="long" resultMap="hospitalResultMap"
+    >
+        select *
+        from hospital
+        where hos_id = #{hosId}
+
+    </select>
+
+    <select id="getAllHospital" resultMap="hospitalResultMap">
+
+        select *
+        from hospital
+
+    </select>
+
+
+    <resultMap id="hospitalResultMap" type="com.mysoft.lps_healthy_server.domain.entity.Hospital">
+        <id column="hos_id" property="hosId"/>
+        <result property="hosName" column="hos_name"/>
+        <result property="hosLevel" column="hos_level"/>
+        <result property="hosNature" column="hos_nature"/>
+        <result property="hosCategory" column="hos_category"/>
+        <result property="hosAddress" column="hos_address"/>
+        <result property="hosIntroduce" column="hos_introduce"/>
+        <result property="hosImgUrl" column="hos_img_url"/>
+        <result property="hosTelephone" column="hos_telephone"/>
+        <collection property="departments" javaType="ArrayList"
+                    column="hos_id"
+                    ofType="com.mysoft.lps_healthy_server.domain.entity.Department"
+                    select="com.mysoft.lps_healthy_server.dao.mapper.DepartmentMapper.selectDepartmentsByHosId"
+        >
+            <id column="depart_id" property="departId"/>
+            <result property="departName" column="depart_name"/>
+        </collection>
+
+    </resultMap>
+
+</mapper>

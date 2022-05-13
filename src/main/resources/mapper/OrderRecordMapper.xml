@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mysoft.lps_healthy_server.dao.mapper.OrderRecordMapper">
+
+
+    <!--    新增预约记录-->
+    <insert id="insertOrderRecord" parameterType="com.mysoft.lps_healthy_server.domain.mydo.DoOrderRecord">
+
+        insert into order_record(order_date, surplus_num, foreign_pid, foreign_did,order_hos_name,order_department)
+        VALUES (#{orderRecord.orderDate}, #{orderRecord.surplusNum}, #{orderRecord.patientId}, #{orderRecord.doctorId},
+                #{orderRecord.hosName},#{orderRecord.departName})
+
+    </insert>
+
+
+
+    <!--    根据病人id查询预约记录,返回List-->
+    <select id="selectOrderRecordByPatId" parameterType="long" resultMap="patIdOrderRecordMap">
+
+                select *
+                from (order_record left join patient on foreign_pid = patient.pat_id)
+                         left join doctor
+                                   on foreign_did = doctor.doc_id
+                where pat_id = #{patientId}
+
+    </select>
+
+    <!--    根据病人id，预约时间,预约医生查询预约记录 , 用于取消预约,先查询，再删除记录-->
+    <select id="selectOrderByPatIdAndOrderTimeAndDocId" resultMap="patIdOrderRecordMap">
+
+        select *
+        from (order_record left join patient on foreign_pid = patient.pat_id)
+                 left join doctor
+                           on foreign_did = doctor.doc_id
+        where pat_id = #{patientId}
+          and doc_id = #{docId}
+          and order_date = #{orderTime}
+          and surplus_num = #{surplusNum}
+
+    </select>
+
+
+    <select id="getOrderInfo"
+            resultType="com.mysoft.lps_healthy_server.domain.response.OrderRecordPatResponse">
+    </select>
+
+    <select id="selectOrderRecordByDocId" parameterType="long" resultMap="patIdOrderRecordMap">
+
+        select *
+        from (order_record left join patient on foreign_pid = patient.pat_id)
+                 left join doctor
+                           on foreign_did = doctor.doc_id
+        where doc_id = #{docId}
+
+    </select>
+
+
+    <resultMap id="patIdOrderRecordMap" type="com.mysoft.lps_healthy_server.domain.entity.OrderRecord">
+
+        <id property="orderId" column="order_id"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="surplusNum" column="surplus_num"/>
+        <result property="hosName" column="order_hos_name"/>
+        <result property="departName" column="order_department"/>
+        <association property="patient" column="foreign_pid"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Patient">
+            <id property="patId" column="pat_id"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="username" column="username"/>
+            <result property="idCard" column="id_card"/>
+            <result property="phone" column="phone"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+        </association>
+
+        <association property="doctor" column="foreign_did"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Doctor">
+            <id property="docId" column="doc_id"/>
+            <result property="docName" column="doc_name"/>
+            <result property="docLevel" column="doc_level"/>
+            <result property="price" column="price"/>
+        </association>
+
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mysoft.lps_healthy_server.dao.mapper.DoctorMapper">
+
+    <insert id="insertDoctor">
+        insert into doctor(nick_name, doc_name, password, doc_level, begin_work_date, end_work_date, foreign_depart_id,
+                           price, roles, surplus_num_eight, surplus_num_nine, surplus_num_ten, surplus_num_fourteen,
+                           surplus_num_fifteen)
+        values ( #{doctor.nickName}, #{doctor.docName}, #{doctor.password}, #{doctor.docLevel}, #{doctor.beginWorkDate}
+               , #{doctor.endWordDate}, #{departmentId}
+               , #{doctor.price}, #{doctor.roles}, #{doctor.surplusNumEight}, #{doctor.surplusNumNine}
+               , #{doctor.surplusNumTen}
+               , #{doctor.surplusNumFourteen}, #{doctor.surplusNumFifteen})
+    </insert>
+
+
+    <!--    删除科室的全部医生-->
+    <delete id="deleteDoctorsByDepartmentId">
+
+        delete
+        from doctor
+        where foreign_depart_id = #{departId}
+
+    </delete>
+
+    <!--    删除科室的一个医生-->
+    <delete id="deleteOneDoctorByDocNickName">
+
+        delete
+        from doctor
+        where nick_name = #{docNickName}
+
+    </delete>
+
+    <!--根据科室id查询该科室的医生-->
+    <select id="selectDoctorByDepartId" resultMap="doctorResultMap" parameterType="long">
+
+        select *
+        from doctor
+        where foreign_depart_id = #{departId}
+
+    </select>
+
+    <!--    根据医生id查询医生信息-->
+    <select id="selectDoctorByDocId" resultMap="doctorResultMap" parameterType="long">
+        select *
+        from doctor
+                 left outer join department on foreign_depart_id = department.depart_id
+        where doc_id = #{docId}
+    </select>
+
+    <!--    根据医生nickName查询医生信息-->
+    <select id="selectDoctorByDocNickName" resultMap="doctorResultMap" parameterType="string">
+
+        select *
+        from doctor
+                 left outer join department on foreign_depart_id = department.depart_id
+        where nick_name = #{nickName}
+
+    </select>
+
+    <select id="getDepartIdByDocId" resultType="java.lang.Long">
+
+        select foreign_depart_id
+        from doctor
+        where doc_id = #{docId}
+
+    </select>
+
+    <!--    修改医生信息-->
+    <update id="updateDocInfo" parameterType="com.mysoft.lps_healthy_server.domain.entity.Doctor">
+
+        update doctor
+        set doc_level            = #{doctor.docLevel},
+            password             = #{doctor.password},
+            begin_work_date      = #{doctor.beginWorkDate},
+            end_work_date        = #{doctor.endWordDate},
+            price                = #{doctor.price},
+            surplus_num_eight    = #{doctor.surplusNumEight},
+            surplus_num_nine     = #{doctor.surplusNumNine},
+            surplus_num_ten      = #{doctor.surplusNumTen},
+            surplus_num_fourteen = #{doctor.surplusNumFourteen},
+            surplus_num_fifteen  = #{doctor.surplusNumFifteen}
+        where nick_name = #{doctor.nickName}
+
+    </update>
+
+
+    <update id="updateDocWorkTime" parameterType="com.mysoft.lps_healthy_server.domain.mydo.DoManageDocWorkTime">
+
+        update doctor
+        set begin_work_date = #{workTime.beginWorkDate},
+            end_work_date   = #{workTime.endWorkDate},
+            price = #{workTime.decimal},
+            surplus_num_eight = #{workTime.surplusNumEight},
+            surplus_num_nine = #{workTime.surplusNumNine},
+            surplus_num_ten = #{workTime.surplusNumTen},
+            surplus_num_fourteen = #{workTime.surplusNumFourteen},
+            surplus_num_fifteen = #{workTime.surplusNumFifteen}
+        where
+            doc_id = #{workTime.docId}
+    </update>
+
+
+    <resultMap id="doctorResultMap" type="com.mysoft.lps_healthy_server.domain.entity.Doctor">
+        <id property="docId" column="doc_id"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="docName" column="doc_name"/>
+        <result property="password" column="password"/>
+        <result property="docLevel" column="doc_level"/>
+        <result property="beginWorkDate" column="begin_work_date"/>
+        <result property="endWordDate" column="end_work_date"/>
+        <result property="price" column="price"/>
+        <result property="roles" column="roles"/>
+        <result property="surplusNumEight" column="surplus_num_eight"/>
+        <result property="surplusNumNine" column="surplus_num_nine"/>
+        <result property="surplusNumTen" column="surplus_num_ten"/>
+        <result property="surplusNumFourteen" column="surplus_num_fourteen"/>
+        <result property="surplusNumFifteen" column="surplus_num_fifteen"/>
+        <association property="department" column="depart_id"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Department">
+            <id property="departId" column="depart_id"/>
+            <result property="departName" column="depart_name"/>
+        </association>
+    </resultMap>
+
+</mapper>

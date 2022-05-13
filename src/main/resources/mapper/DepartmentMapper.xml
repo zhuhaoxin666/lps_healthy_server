@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mysoft.lps_healthy_server.dao.mapper.DepartmentMapper">
+
+    <insert id="insertDepartment" >
+        insert into department(depart_name, foreign_hos_id)
+        values (#{depart.departName},#{hospitalId})
+    </insert>
+
+    <select id="selectDepartmentIdByDepartNameAndHosId" resultType="long">
+
+        select  depart_id from department where depart_name=#{departName} and foreign_hos_id = #{hosId}
+
+    </select>
+
+
+<!--    根据医院id查询所属的科室-->
+    <select id="selectDepartmentsByHosId" parameterType="long" resultMap="departmentResultMap">
+        select * from department left join hospital on foreign_hos_id = hospital.hos_id where hos_id = #{hosId}
+    </select>
+
+
+<!--    插入科室：-->
+    <insert id="insertDepartmentWithHosId">
+
+        insert into department(depart_name, foreign_hos_id) VALUES
+        (#{departmentName},#{hosId})
+
+    </insert>
+
+<!--    修改科室-->
+    <update id="updateDepartmentWithHosId">
+
+        update department set depart_name = #{newName}
+        where foreign_hos_id = #{hosId} and depart_name = #{oldName}
+
+    </update>
+
+<!--    删除科室-->
+<!--    删除科室之前应先删除该科室对应的医生-->
+    <delete id="deleteDepartmentByHosIdAndDepartmentName">
+
+        delete from department where foreign_hos_id =#{hosId} and depart_name = #{departName}
+
+    </delete>
+
+    <select id="selectDepartmentByDepartId" parameterType="long" resultMap="departmentResultMap">
+
+        select * from department left outer join hospital on department.foreign_hos_id = hospital.hos_id
+        where depart_id = #{departId}
+
+    </select>
+    <select id="getHosIdByDepartId" resultType="java.lang.Long">
+
+        select foreign_hos_id from department where depart_id = #{departId}
+
+    </select>
+
+    <resultMap id="departmentResultMap" type="com.mysoft.lps_healthy_server.domain.entity.Department">
+        <id property="departId" column="depart_id"/>
+        <result property="departName" column="depart_name"/>
+        <association property="hospital" column="hos_id"
+                     javaType="com.mysoft.lps_healthy_server.domain.entity.Hospital">
+            <id property="hosId" column="hos_id"/>
+            <result property="hosName" column="hos_name"/>
+            <result property="hosLevel" column="hos_level"/>
+            <result property="hosNature" column="hos_nature"/>
+            <result property="hosCategory" column="hos_category"/>
+            <result property="hosAddress" column="hos_address"/>
+            <result property="hosIntroduce" column="hos_introduce"/>
+            <result property="hosImgUrl" column="hos_img_url"/>
+            <result property="hosTelephone" column="hos_telephone"/>
+        </association>
+
+        <collection property="doctors" javaType="ArrayList"
+                    column="depart_id" ofType="com.mysoft.lps_healthy_server.domain.entity.Doctor"
+                    select="com.mysoft.lps_healthy_server.dao.mapper.DoctorMapper.selectDoctorByDepartId">
+            <id property="docId" column="doc_id"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="docName" column="doc_name"/>
+            <result property="password" column="password"/>
+            <result property="docLevel" column="doc_level"/>
+            <result property="beginWorkDate" column="begin_work_date"/>
+            <result property="endWordDate" column="end_work_date"/>
+            <result property="price" column="price"/>
+            <result property="roles" column="roles"/>
+            <result property="surplusNumEight" column="surplus_num_eight"/>
+            <result property="surplusNumNine" column="surplus_num_nine"/>
+            <result property="surplusNumTen" column="surplus_num_ten"/>
+            <result property="surplusNumFourteen" column="surplus_num_fourteen"/>
+            <result property="surplusNumFifteen" column="surplus_num_fifteen"/>
+
+        </collection>
+    </resultMap>
+
+</mapper>
